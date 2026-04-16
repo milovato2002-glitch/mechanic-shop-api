@@ -1,0 +1,181 @@
+{
+  "info": {
+    "name": "Mechanic Shop API",
+    "description": "Full CRUD for Mechanics and Service Tickets with assign/remove mechanic endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:5000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Mechanics",
+      "item": [
+        {
+          "name": "Create Mechanic",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Smith\",\n  \"email\": \"john@shop.com\",\n  \"phone\": \"555-0101\",\n  \"salary\": 65000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mechanics/",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Mechanic 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane@shop.com\",\n  \"phone\": \"555-0102\",\n  \"salary\": 70000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mechanics/",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", ""]
+            }
+          }
+        },
+        {
+          "name": "Get All Mechanics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/mechanics/",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", ""]
+            }
+          }
+        },
+        {
+          "name": "Update Mechanic (ID 1)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Smith Jr.\",\n  \"email\": \"john@shop.com\",\n  \"phone\": \"555-0101\",\n  \"salary\": 72000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mechanics/1",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Mechanic (ID 2)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/mechanics/2",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "2"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Service Tickets",
+      "item": [
+        {
+          "name": "Create Service Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vin\": \"1HGCM82633A004352\",\n  \"service_date\": \"2026-04-15\",\n  \"service_desc\": \"Oil change and brake inspection\",\n  \"customer_email\": \"customer@email.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/service-tickets/",
+              "host": ["{{base_url}}"],
+              "path": ["service-tickets", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Service Ticket 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vin\": \"2T1BURHE0FC123456\",\n  \"service_date\": \"2026-04-16\",\n  \"service_desc\": \"Transmission fluid flush\",\n  \"customer_email\": \"another@email.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/service-tickets/",
+              "host": ["{{base_url}}"],
+              "path": ["service-tickets", ""]
+            }
+          }
+        },
+        {
+          "name": "Get All Service Tickets",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/service-tickets/",
+              "host": ["{{base_url}}"],
+              "path": ["service-tickets", ""]
+            }
+          }
+        },
+        {
+          "name": "Assign Mechanic 1 to Ticket 1",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/service-tickets/1/assign-mechanic/1",
+              "host": ["{{base_url}}"],
+              "path": ["service-tickets", "1", "assign-mechanic", "1"]
+            }
+          }
+        },
+        {
+          "name": "Assign Mechanic 2 to Ticket 1",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/service-tickets/1/assign-mechanic/2",
+              "host": ["{{base_url}}"],
+              "path": ["service-tickets", "1", "assign-mechanic", "2"]
+            }
+          }
+        },
+        {
+          "name": "Remove Mechanic 2 from Ticket 1",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/service-tickets/1/remove-mechanic/2",
+              "host": ["{{base_url}}"],
+              "path": ["service-tickets", "1", "remove-mechanic", "2"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
