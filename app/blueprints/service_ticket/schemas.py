@@ -1,3 +1,4 @@
+from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from app.models.service_ticket import ServiceTicket
 from app.blueprints.mechanic.schemas import MechanicSchema
@@ -8,8 +9,9 @@ class ServiceTicketSchema(SQLAlchemyAutoSchema):
         model = ServiceTicket
         load_instance = True
         include_relationships = True
+        dump_only = ('mechanics',)
 
-    mechanics = MechanicSchema(many=True, dump_only=True)
+    mechanics = fields.Nested(MechanicSchema, many=True)
 
 
 service_ticket_schema = ServiceTicketSchema()

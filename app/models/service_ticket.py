@@ -15,7 +15,9 @@ class ServiceTicket(db.Model):
     service_date = db.Column(db.Date, nullable=False)
     service_desc = db.Column(db.String(300), nullable=False)
     customer_email = db.Column(db.String(120), nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'), nullable=True)
 
+    customer = db.relationship('Customer', back_populates='service_tickets')
     mechanics = db.relationship(
         'Mechanic',
         secondary=service_mechanic,

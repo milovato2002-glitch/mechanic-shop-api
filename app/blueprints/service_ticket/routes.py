@@ -16,13 +16,13 @@ def create_ticket():
 
     db.session.add(ticket_data)
     db.session.commit()
-    return service_ticket_schema.jsonify(ticket_data), 201
+    return jsonify(service_ticket_schema.dump(ticket_data)), 201
 
 
 @service_ticket_bp.route('/', methods=['GET'])
 def get_tickets():
     tickets = ServiceTicket.query.all()
-    return service_tickets_schema.jsonify(tickets), 200
+    return jsonify(service_tickets_schema.dump(tickets)), 200
 
 
 @service_ticket_bp.route('/<int:ticket_id>/assign-mechanic/<int:mechanic_id>', methods=['PUT'])
@@ -35,7 +35,7 @@ def assign_mechanic(ticket_id, mechanic_id):
 
     ticket.mechanics.append(mechanic)
     db.session.commit()
-    return service_ticket_schema.jsonify(ticket), 200
+    return jsonify(service_ticket_schema.dump(ticket)), 200
 
 
 @service_ticket_bp.route('/<int:ticket_id>/remove-mechanic/<int:mechanic_id>', methods=['PUT'])
@@ -48,4 +48,4 @@ def remove_mechanic(ticket_id, mechanic_id):
 
     ticket.mechanics.remove(mechanic)
     db.session.commit()
-    return service_ticket_schema.jsonify(ticket), 200
+    return jsonify(service_ticket_schema.dump(ticket)), 200
