@@ -15,13 +15,13 @@ def create_mechanic():
 
     db.session.add(mechanic_data)
     db.session.commit()
-    return mechanic_schema.jsonify(mechanic_data), 201
+    return jsonify(mechanic_schema.dump(mechanic_data)), 201
 
 
 @mechanic_bp.route('/', methods=['GET'])
 def get_mechanics():
     mechanics = Mechanic.query.all()
-    return mechanics_schema.jsonify(mechanics), 200
+    return jsonify(mechanics_schema.dump(mechanics)), 200
 
 
 @mechanic_bp.route('/<int:id>', methods=['PUT'])
@@ -33,7 +33,7 @@ def update_mechanic(id):
         return jsonify(e.messages), 400
 
     db.session.commit()
-    return mechanic_schema.jsonify(updated), 200
+    return jsonify(mechanic_schema.dump(updated)), 200
 
 
 @mechanic_bp.route('/<int:id>', methods=['DELETE'])
