@@ -10,13 +10,14 @@ A RESTful Flask API for managing mechanics, customers, service tickets, and inve
 - Flask-Limiter (rate limiting)
 - Flask-Caching (response caching)
 - python-jose (JWT authentication)
+- Flask-Swagger + Flask-Swagger-UI (API documentation)
 - MySQL
 
 ## Project Structure
 
 ```
 app/
-├── __init__.py                  # App factory, blueprint registration
+├── __init__.py                  # App factory, blueprint registration, Swagger config
 ├── extensions.py                # SQLAlchemy, Marshmallow, Limiter, Cache
 ├── utils/
 │   └── auth.py                  # encode_token, token_required decorator
@@ -42,6 +43,12 @@ app/
         ├── __init__.py           # Blueprint init
         ├── routes.py             # Full CRUD
         └── schemas.py            # InventorySchema
+tests/
+├── __init__.py
+├── test_customers.py            # Customer endpoint tests
+├── test_mechanics.py            # Mechanic endpoint tests
+├── test_service_tickets.py      # Service ticket endpoint tests
+└── test_inventory.py            # Inventory endpoint tests
 ```
 
 ## Setup
@@ -68,6 +75,37 @@ app/
    ```
    python run.py
    ```
+
+## Swagger API Documentation
+
+Once the server is running, visit the interactive Swagger UI to explore and test all API endpoints:
+
+```
+http://localhost:5000/api/docs
+```
+
+The raw Swagger JSON spec is available at:
+
+```
+http://localhost:5000/api/swagger.json
+```
+
+## Running Tests
+
+Tests use an in-memory SQLite database and do not require MySQL. Run the full test suite with:
+
+```
+py -m unittest discover tests
+```
+
+To run a specific test file:
+
+```
+py -m unittest tests.test_customers
+py -m unittest tests.test_mechanics
+py -m unittest tests.test_service_tickets
+py -m unittest tests.test_inventory
+```
 
 ## API Endpoints
 

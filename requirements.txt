@@ -18,3 +18,6 @@ Werkzeug==3.1.8
 flask-limiter==3.12
 flask-caching==2.3.1
 python-jose==3.5.0
+flask-swagger==0.2.14
+flask-swagger-ui==5.32.2
+PyYAML==6.0.3
