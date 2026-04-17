@@ -65,6 +65,15 @@ def login():
     return jsonify({'token': token}), 200
 
 
+@customer_bp.route('/test-token', methods=['GET'])
+def test_token():
+    auth_header = request.headers.get('Authorization', None)
+    return jsonify({
+        'authorization_header': auth_header,
+        'headers_present': dict(request.headers),
+    }), 200
+
+
 @customer_bp.route('/my-tickets', methods=['GET'])
 @token_required
 def my_tickets(customer_id):
