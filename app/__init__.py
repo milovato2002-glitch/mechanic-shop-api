@@ -1,11 +1,12 @@
 import os
 from flask import Flask
 from dotenv import load_dotenv
-from app.extensions import db, ma
-from app.models import Mechanic, Customer, ServiceTicket  # noqa: F401
+from app.extensions import db, ma, limiter, cache
+from app.models import Mechanic, Customer, ServiceTicket, Inventory  # noqa: F401
 from app.blueprints.mechanic import mechanic_bp
 from app.blueprints.customer import customer_bp
 from app.blueprints.service_ticket import service_ticket_bp
+from app.blueprints.inventory import inventory_bp
 
 load_dotenv()
 
@@ -18,13 +19,17 @@ def create_app():
         'mysql+mysqlconnector://root:password@localhost/mechanic_shop_db'
     )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['CACHE_TYPE'] = 'SimpleCache'
 
     db.init_app(app)
     ma.init_app(app)
+    limiter.init_app(app)
+    cache.init_app(app)
 
     app.register_blueprint(mechanic_bp, url_prefix='/mechanics')
     app.register_blueprint(customer_bp, url_prefix='/customers')
     app.register_blueprint(service_ticket_bp, url_prefix='/service-tickets')
+    app.register_blueprint(inventory_bp, url_prefix='/inventory')
 
     with app.app_context():
         db.create_all()

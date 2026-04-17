@@ -1,16 +1,151 @@
 {
   "info": {
     "name": "Mechanic Shop API",
-    "description": "Full CRUD for Mechanics and Service Tickets with assign/remove mechanic endpoints",
+    "description": "Full CRUD for Mechanics, Customers, Service Tickets, and Inventory with auth, rate limiting, caching, and pagination",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "base_url",
       "value": "http://127.0.0.1:5000"
+    },
+    {
+      "key": "token",
+      "value": ""
     }
   ],
   "item": [
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "Create Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alice Johnson\",\n  \"email\": \"alice@email.com\",\n  \"phone\": \"555-1001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/customers/",
+              "host": ["{{base_url}}"],
+              "path": ["customers", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Customer 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bob Williams\",\n  \"email\": \"bob@email.com\",\n  \"phone\": \"555-1002\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/customers/",
+              "host": ["{{base_url}}"],
+              "path": ["customers", ""]
+            }
+          }
+        },
+        {
+          "name": "Get All Customers (Paginated)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/customers/?page=1&per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["customers", ""],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "per_page", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Customer (ID 1)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alice Johnson-Smith\",\n  \"email\": \"alice@email.com\",\n  \"phone\": \"555-1001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/customers/1",
+              "host": ["{{base_url}}"],
+              "path": ["customers", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Customer (ID 2)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/customers/2",
+              "host": ["{{base_url}}"],
+              "path": ["customers", "2"]
+            }
+          }
+        },
+        {
+          "name": "Login Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@email.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/customers/login",
+              "host": ["{{base_url}}"],
+              "path": ["customers", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get My Tickets",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/customers/my-tickets",
+              "host": ["{{base_url}}"],
+              "path": ["customers", "my-tickets"]
+            }
+          }
+        }
+      ]
+    },
     {
       "name": "Mechanics",
       "item": [
@@ -62,6 +197,17 @@
           }
         },
         {
+          "name": "Get Mechanics by Most Tickets",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/mechanics/most-tickets",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "most-tickets"]
+            }
+          }
+        },
+        {
           "name": "Update Mechanic (ID 1)",
           "request": {
             "method": "PUT",
@@ -104,7 +250,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"vin\": \"1HGCM82633A004352\",\n  \"service_date\": \"2026-04-15\",\n  \"service_desc\": \"Oil change and brake inspection\",\n  \"customer_email\": \"customer@email.com\"\n}"
+              "raw": "{\n  \"vin\": \"1HGCM82633A004352\",\n  \"service_date\": \"2026-04-15\",\n  \"service_desc\": \"Oil change and brake inspection\",\n  \"customer_email\": \"alice@email.com\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/service-tickets/",
@@ -122,7 +268,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"vin\": \"2T1BURHE0FC123456\",\n  \"service_date\": \"2026-04-16\",\n  \"service_desc\": \"Transmission fluid flush\",\n  \"customer_email\": \"another@email.com\"\n}"
+              "raw": "{\n  \"vin\": \"2T1BURHE0FC123456\",\n  \"service_date\": \"2026-04-16\",\n  \"service_desc\": \"Transmission fluid flush\",\n  \"customer_email\": \"bob@email.com\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/service-tickets/",
@@ -172,6 +318,116 @@
               "raw": "{{base_url}}/service-tickets/1/remove-mechanic/2",
               "host": ["{{base_url}}"],
               "path": ["service-tickets", "1", "remove-mechanic", "2"]
+            }
+          }
+        },
+        {
+          "name": "Edit Ticket (Add/Remove Mechanics)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"add_ids\": [1, 2],\n  \"remove_ids\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/service-tickets/1/edit",
+              "host": ["{{base_url}}"],
+              "path": ["service-tickets", "1", "edit"]
+            }
+          }
+        },
+        {
+          "name": "Add Part to Ticket 1",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/service-tickets/1/add-part/1",
+              "host": ["{{base_url}}"],
+              "path": ["service-tickets", "1", "add-part", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inventory",
+      "item": [
+        {
+          "name": "Create Inventory Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Oil Filter\",\n  \"price\": 12.99\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/inventory/",
+              "host": ["{{base_url}}"],
+              "path": ["inventory", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Inventory Item 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Brake Pads\",\n  \"price\": 45.50\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/inventory/",
+              "host": ["{{base_url}}"],
+              "path": ["inventory", ""]
+            }
+          }
+        },
+        {
+          "name": "Get All Inventory",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/inventory/",
+              "host": ["{{base_url}}"],
+              "path": ["inventory", ""]
+            }
+          }
+        },
+        {
+          "name": "Update Inventory Item (ID 1)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Premium Oil Filter\",\n  \"price\": 18.99\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/inventory/1",
+              "host": ["{{base_url}}"],
+              "path": ["inventory", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Inventory Item (ID 2)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/inventory/2",
+              "host": ["{{base_url}}"],
+              "path": ["inventory", "2"]
             }
           }
         }

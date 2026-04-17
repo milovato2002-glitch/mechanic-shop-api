@@ -1,4 +1,5 @@
 from app.extensions import db
+from app.models.inventory import service_inventory
 
 service_mechanic = db.Table(
     'service_mechanic',
@@ -21,5 +22,10 @@ class ServiceTicket(db.Model):
     mechanics = db.relationship(
         'Mechanic',
         secondary=service_mechanic,
+        back_populates='tickets',
+    )
+    parts = db.relationship(
+        'Inventory',
+        secondary=service_inventory,
         back_populates='tickets',
     )
