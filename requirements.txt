@@ -21,3 +21,5 @@ python-jose==3.5.0
 flask-swagger==0.2.14
 flask-swagger-ui==5.32.2
 PyYAML==6.0.3
+gunicorn==23.0.0
+psycopg2-binary==2.9.10

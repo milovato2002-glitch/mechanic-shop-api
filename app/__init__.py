@@ -16,6 +16,28 @@ SWAGGER_URL = '/api/docs'
 API_URL = '/api/swagger.json'
 
 
+def _get_database_uri():
+    """Resolve the database URI for the current environment.
+
+    Priority:
+      1. SQLALCHEMY_DATABASE_URI (explicit override)
+      2. DATABASE_URL (Render / Heroku-style Postgres)
+      3. Local MySQL fallback for development
+    """
+    uri = os.environ.get('SQLALCHEMY_DATABASE_URI')
+    if uri:
+        return uri
+
+    uri = os.environ.get('DATABASE_URL')
+    if uri:
+        # SQLAlchemy 1.4+ requires postgresql:// rather than postgres://
+        if uri.startswith('postgres://'):
+            uri = uri.replace('postgres://', 'postgresql://', 1)
+        return uri
+
+    return 'mysql+mysqlconnector://root:password@localhost/mechanic_shop_db'
+
+
 def create_app(config_name='default'):
     app = Flask(__name__)
 
@@ -24,13 +46,11 @@ def create_app(config_name='default'):
         app.config['TESTING'] = True
         app.config['CACHE_TYPE'] = 'SimpleCache'
     else:
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-            'SQLALCHEMY_DATABASE_URI',
-            'mysql+mysqlconnector://root:password@localhost/mechanic_shop_db'
-        )
+        app.config['SQLALCHEMY_DATABASE_URI'] = _get_database_uri()
         app.config['CACHE_TYPE'] = 'SimpleCache'
 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-change-me')
 
     db.init_app(app)
     ma.init_app(app)
@@ -42,6 +62,19 @@ def create_app(config_name='default'):
     app.register_blueprint(service_ticket_bp, url_prefix='/service-tickets')
     app.register_blueprint(inventory_bp, url_prefix='/inventory')
 
+    @app.route('/')
+    def index():
+        return jsonify({
+            'name': 'Mechanic Shop API',
+            'version': '1.0.0',
+            'docs': '/api/docs',
+            'status': 'ok'
+        })
+
+    @app.route('/health')
+    def health():
+        return jsonify({'status': 'ok'}), 200
+
     # Swagger JSON endpoint
     @app.route('/api/swagger.json')
     def swagger_spec():
@@ -49,9 +82,8 @@ def create_app(config_name='default'):
         swag['info']['title'] = 'Mechanic Shop API'
         swag['info']['version'] = '1.0.0'
         swag['info']['description'] = 'A RESTful API for managing mechanics, customers, service tickets, and inventory at an auto repair shop.'
-        swag['host'] = 'localhost:5000'
         swag['basePath'] = '/'
-        swag['schemes'] = ['http']
+        swag['schemes'] = ['https', 'http']
         swag['securityDefinitions'] = {
             'Bearer': {
                 'type': 'apiKey',
