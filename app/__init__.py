@@ -30,7 +30,6 @@ def _get_database_uri():
 
     uri = os.environ.get('DATABASE_URL')
     if uri:
-        # SQLAlchemy 1.4+ requires postgresql:// rather than postgres://
         if uri.startswith('postgres://'):
             uri = uri.replace('postgres://', 'postgresql://', 1)
         return uri
@@ -75,13 +74,17 @@ def create_app(config_name='default'):
     def health():
         return jsonify({'status': 'ok'}), 200
 
-    # Swagger JSON endpoint
     @app.route('/api/swagger.json')
     def swagger_spec():
-        swag = swagger(app)
-        swag['info']['title'] = 'Mechanic Shop API'
-        swag['info']['version'] = '1.0.0'
-        swag['info']['description'] = 'A RESTful API for managing mechanics, customers, service tickets, and inventory at an auto repair shop.'
+        try:
+            swag = swagger(app)
+        except (AttributeError, TypeError):
+            swag = {'swagger': '2.0', 'paths': {}}
+        swag['info'] = {
+            'title': 'Mechanic Shop API',
+            'version': '1.0.0',
+            'description': 'A RESTful API for managing mechanics, customers, service tickets, and inventory at an auto repair shop.'
+        }
         swag['basePath'] = '/'
         swag['schemes'] = ['https', 'http']
         swag['securityDefinitions'] = {
@@ -94,7 +97,6 @@ def create_app(config_name='default'):
         }
         return jsonify(swag)
 
-    # Swagger UI blueprint
     swaggerui_bp = get_swaggerui_blueprint(
         SWAGGER_URL,
         API_URL,
