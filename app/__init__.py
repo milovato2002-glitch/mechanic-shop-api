@@ -1,6 +1,5 @@
 import os
 from flask import Flask, jsonify
-from dotenv import load_dotenv
 from flask_swagger import swagger
 from flask_swagger_ui import get_swaggerui_blueprint
 from app.extensions import db, ma, limiter, cache
@@ -10,10 +9,13 @@ from app.blueprints.customer import customer_bp
 from app.blueprints.service_ticket import service_ticket_bp
 from app.blueprints.inventory import inventory_bp
 
-load_dotenv()
 
 SWAGGER_URL = '/api/docs'
 API_URL = '/api/swagger.json'
+
+# Replace this with your live Render service host (no protocol, no trailing slash)
+# Example: 'mechanic-shop-api.onrender.com'
+SWAGGER_HOST = os.environ.get('SWAGGER_HOST', 'mechanic-shop-api-52yq.onrender.com')
 
 
 def _get_database_uri():
@@ -37,19 +39,51 @@ def _get_database_uri():
     return 'mysql+mysqlconnector://root:password@localhost/mechanic_shop_db'
 
 
+# ---- Configuration Classes ----
+
+class Config:
+    """Base configuration. Other environments inherit and override."""
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    CACHE_TYPE = 'SimpleCache'
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-change-me')
+
+
+class DevelopmentConfig(Config):
+    """Development environment configuration."""
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = _get_database_uri()
+
+
+class TestingConfig(Config):
+    """Testing environment configuration."""
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite://'
+
+
+class ProductionConfig(Config):
+    """Production environment configuration (used on Render)."""
+    DEBUG = False
+    SQLALCHEMY_DATABASE_URI = _get_database_uri()
+
+
+# Map config name strings to config classes
+config_by_name = {
+    'development': DevelopmentConfig,
+    'testing': TestingConfig,
+    'production': ProductionConfig,
+    'default': DevelopmentConfig,
+}
+
+
 def create_app(config_name='default'):
     app = Flask(__name__)
 
-    if config_name == 'testing':
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
-        app.config['TESTING'] = True
-        app.config['CACHE_TYPE'] = 'SimpleCache'
+    # Resolve the config class (accept either a string name or a class directly)
+    if isinstance(config_name, str):
+        config_class = config_by_name.get(config_name, DevelopmentConfig)
     else:
-        app.config['SQLALCHEMY_DATABASE_URI'] = _get_database_uri()
-        app.config['CACHE_TYPE'] = 'SimpleCache'
-
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-change-me')
+        config_class = config_name
+    app.config.from_object(config_class)
 
     db.init_app(app)
     ma.init_app(app)
@@ -85,8 +119,9 @@ def create_app(config_name='default'):
             'version': '1.0.0',
             'description': 'A RESTful API for managing mechanics, customers, service tickets, and inventory at an auto repair shop.'
         }
+        swag['host'] = SWAGGER_HOST
         swag['basePath'] = '/'
-        swag['schemes'] = ['https', 'http']
+        swag['schemes'] = ['https']
         swag['securityDefinitions'] = {
             'Bearer': {
                 'type': 'apiKey',
